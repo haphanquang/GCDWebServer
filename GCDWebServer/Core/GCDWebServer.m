@@ -204,23 +204,23 @@ static void _ExecuteMainThreadRunLoopSources() {
 #endif
 }
 
-#if TARGET_OS_IPHONE
-
-// Always called on main thread
-- (void)_startBackgroundTask {
-  GWS_DCHECK([NSThread isMainThread]);
-  if (_backgroundTask == UIBackgroundTaskInvalid) {
-    GWS_LOG_DEBUG(@"Did start background task");
-    _backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-      GWS_LOG_WARNING(@"Application is being suspended while %@ is still connected", [self class]);
-      [self _endBackgroundTask];
-    }];
-  } else {
-    GWS_DNOT_REACHED();
-  }
-}
-
-#endif
+//#if TARGET_OS_IPHONE
+//
+//// Always called on main thread
+//- (void)_startBackgroundTask {
+//  GWS_DCHECK([NSThread isMainThread]);
+//  if (_backgroundTask == UIBackgroundTaskInvalid) {
+//    GWS_LOG_DEBUG(@"Did start background task");
+//    _backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+//      GWS_LOG_WARNING(@"Application is being suspended while %@ is still connected", [self class]);
+//      [self _endBackgroundTask];
+//    }];
+//  } else {
+//    GWS_DNOT_REACHED();
+//  }
+//}
+//
+//#endif
 
 // Always called on main thread
 - (void)_didConnect {
@@ -229,11 +229,11 @@ static void _ExecuteMainThreadRunLoopSources() {
   _connected = YES;
   GWS_LOG_DEBUG(@"Did connect");
 
-#if TARGET_OS_IPHONE
-  if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground) {
-    [self _startBackgroundTask];
-  }
-#endif
+//#if TARGET_OS_IPHONE
+//  if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground) {
+//    [self _startBackgroundTask];
+//  }
+//#endif
 
   if ([_delegate respondsToSelector:@selector(webServerDidConnect:)]) {
     [_delegate webServerDidConnect:self];
@@ -259,22 +259,22 @@ static void _ExecuteMainThreadRunLoopSources() {
   });
 }
 
-#if TARGET_OS_IPHONE
-
-// Always called on main thread
-- (void)_endBackgroundTask {
-  GWS_DCHECK([NSThread isMainThread]);
-  if (_backgroundTask != UIBackgroundTaskInvalid) {
-    if (_suspendInBackground && ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) && _source4) {
-      [self _stop];
-    }
-    [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
-    _backgroundTask = UIBackgroundTaskInvalid;
-    GWS_LOG_DEBUG(@"Did end background task");
-  }
-}
-
-#endif
+//#if TARGET_OS_IPHONE
+//
+//// Always called on main thread
+//- (void)_endBackgroundTask {
+//  GWS_DCHECK([NSThread isMainThread]);
+//  if (_backgroundTask != UIBackgroundTaskInvalid) {
+//    if (_suspendInBackground && ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) && _source4) {
+//      [self _stop];
+//    }
+//    [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
+//    _backgroundTask = UIBackgroundTaskInvalid;
+//    GWS_LOG_DEBUG(@"Did end background task");
+//  }
+//}
+//
+//#endif
 
 // Always called on main thread
 - (void)_didDisconnect {
@@ -283,9 +283,9 @@ static void _ExecuteMainThreadRunLoopSources() {
   _connected = NO;
   GWS_LOG_DEBUG(@"Did disconnect");
 
-#if TARGET_OS_IPHONE
-  [self _endBackgroundTask];
-#endif
+//#if TARGET_OS_IPHONE
+//  [self _endBackgroundTask];
+//#endif
 
   if ([_delegate respondsToSelector:@selector(webServerDidDisconnect:)]) {
     [_delegate webServerDidDisconnect:self];
@@ -732,12 +732,12 @@ static inline NSString* _EncodeBase64(NSString* string) {
 - (BOOL)startWithOptions:(NSDictionary<NSString*, id>*)options error:(NSError**)error {
   if (_options == nil) {
     _options = options ? [options copy] : @{};
-#if TARGET_OS_IPHONE
-    _suspendInBackground = [(NSNumber*)_GetOption(_options, GCDWebServerOption_AutomaticallySuspendInBackground, @YES) boolValue];
-    if (((_suspendInBackground == NO) || ([[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground)) && ![self _start:error])
-#else
+//#if TARGET_OS_IPHONE
+//    _suspendInBackground = [(NSNumber*)_GetOption(_options, GCDWebServerOption_AutomaticallySuspendInBackground, @YES) boolValue];
+//    if (((_suspendInBackground == NO) || ([[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground)) && ![self _start:error])
+//#else
     if (![self _start:error])
-#endif
+//#endif
     {
       _options = nil;
       return NO;
